@@ -30,7 +30,8 @@ let package = Package(
                 dependencies: ["StandardCyborgUIObjC"],
                 path: "Sources/StandardCyborgUI",
                 resources: [
-                    .process("Assets.xcassets")
+                    .process("Resources/Assets.xcassets"),
+                    .process("Resources/ScenePreviewViewController.scn")
                 ]
         ),
         
