@@ -6,5 +6,6 @@ import Foundation
 //    public static let scuiBundle = Bundle(for: ShutterButton.self)
 //    
 //    public static let scuiResourcesBundle =
-//        Bundle(url: scuiBundle.resourceURL!.appendingPathComponent("StandardCyborgUI.bundle"))!
+//    Bundle.scuiBundle
+//        //Bundle(url: scuiBundle.resourceURL!.appendingPathComponent("Assets.xcassets"))!
 //}

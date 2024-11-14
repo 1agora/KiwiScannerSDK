@@ -10,7 +10,7 @@ import SceneKit
 import StandardCyborgFusion
 import UIKit
 
-@objc public class ScenePreviewViewController: UIViewController, SCNSceneRendererDelegate {
+@objc public class ScenePreviewViewController: UIViewController, @preconcurrency SCNSceneRendererDelegate {
     @objc public private(set) var scScene: SCScene
     @objc private var meshTexturing: SCMeshTexturing?
     @objc private var landmarks: Set<SCLandmark3D>?

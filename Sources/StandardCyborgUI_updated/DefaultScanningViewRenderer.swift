@@ -10,7 +10,7 @@ import Foundation
 import Metal
 import StandardCyborgFusion
 
-public class DefaultScanningViewRenderer: ScanningViewRenderer {
+public class DefaultScanningViewRenderer: @preconcurrency ScanningViewRenderer {
     
     private let _commandQueue: MTLCommandQueue
     private let _drawTextureCommandEncoder: AspectFillTextureCommandEncoder
@@ -21,7 +21,7 @@ public class DefaultScanningViewRenderer: ScanningViewRenderer {
     required public init(device: MTLDevice, commandQueue: MTLCommandQueue) {
         _commandQueue = commandQueue
         
-        let library = try! device.makeDefaultLibrary(bundle: Bundle.module)
+        let library = try! device.makeDefaultLibrary(bundle: .module)
         
         _drawTextureCommandEncoder = AspectFillTextureCommandEncoder(device: device, library: library)
         _pointCloudRenderer = PointCloudCommandEncoder(device: device, library: library)

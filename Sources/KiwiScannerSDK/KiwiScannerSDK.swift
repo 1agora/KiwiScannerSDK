@@ -55,10 +55,6 @@ public class KiwiScannerManager : ObservableObject {
         viewerView = KiwiViewerView(manager: self)
         scanningViewController?.delegate = self
     }
-        
-    public func sayHello() {
-        print("Hello!")
-    }
     
     @MainActor public func onScanningFinished(pointCloud: SCPointCloud) {
         self.pointCloud = pointCloud
@@ -66,7 +62,7 @@ public class KiwiScannerManager : ObservableObject {
         state = .viewing
     }
     
-    public func onScanningCancelled() {
+    @MainActor public func onScanningCancelled() {
         dismissScannerView()
         state = .ready
     }
@@ -85,7 +81,7 @@ public class KiwiScannerManager : ObservableObject {
 
 extension KiwiScannerManager : @preconcurrency ScanningViewControllerDelegate {
         
-    public func scanningViewControllerDidCancel(_ controller: ScanningViewController) {
+    @MainActor public func scanningViewControllerDidCancel(_ controller: ScanningViewController) {
         print("scanningViewControllerDidCancel")
         onScanningCancelled()
     }

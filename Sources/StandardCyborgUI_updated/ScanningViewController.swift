@@ -2,6 +2,7 @@ import AVFoundation
 import StandardCyborgFusion
 import UIKit
 
+@preconcurrency
 @objc public protocol ScanningViewControllerDelegate: AnyObject {
     func scanningViewControllerDidCancel(_ controller: ScanningViewController)
     @objc optional func scanningViewController(_ controller: ScanningViewController, didScan pointCloud: SCPointCloud)
@@ -21,9 +22,11 @@ import UIKit
     Rendering can be customized by setting the scanningViewRenderer
     to your own object conforming to that protocol.
  */
+
+@preconcurrency
 @objc open class ScanningViewController: UIViewController,
-    CameraManagerDelegate,
-    SCReconstructionManagerDelegate
+                                         @preconcurrency CameraManagerDelegate,
+                                         @preconcurrency SCReconstructionManagerDelegate
 {
     
     // MARK: - Public
@@ -373,11 +376,11 @@ import UIKit
         view.addSubview(_metalContainerView)
         view.addSubview(_countdownLabel)
         view.addSubview(_scanFailedLabel)
-        view.addSubview(_mirrorModeBackground)
+        //view.addSubview(_mirrorModeBackground)
         view.addSubview(dismissButton)
         view.addSubview(shutterButton)
-        _mirrorModeBackground.addSubview(_mirrorModeLabel)
-        _mirrorModeBackground.addSubview(_mirrorModeButton)
+//        _mirrorModeBackground.addSubview(_mirrorModeLabel)
+//        _mirrorModeBackground.addSubview(_mirrorModeButton)
         
         let mirrorModeText = NSMutableAttributedString(string: "Mirror Mode On\n", attributes: [.font: UIFont.systemFont(ofSize: 12, weight: .bold)])
         mirrorModeText.append(NSAttributedString(string: "Attach Mirror Clip", attributes: [.font: UIFont.systemFont(ofSize: 12, weight: .regular)]))
@@ -388,7 +391,7 @@ import UIKit
         _mirrorModeLabel.textAlignment = NSTextAlignment.center
         _mirrorModeLabel.numberOfLines = 2
         _mirrorModeButton.addTarget(self, action: #selector(toggleMirrorMode(_:)), for: UIControl.Event.touchUpInside)
-        _mirrorModeButton.setImage(UIImage(named: "FlipCamera", in: Bundle.module, compatibleWith: nil)!, for: UIControl.State.normal)
+        _mirrorModeButton.setImage(UIImage(named: "FlipCamera", in: .module, compatibleWith: nil)!, for: UIControl.State.normal)
         
         _countdownLabel.textColor = UIColor.white
         _countdownLabel.textAlignment = NSTextAlignment.center
@@ -442,18 +445,20 @@ import UIKit
             case .configurationFailed:
                 print("Configuration failed for an unknown reason")
             case .notAuthorized:
-                let message = "To take a 3D scan, go to your privacy settings. Tap Camera and turn on for Capture"
-                let alertController = UIAlertController(title: "Camera Access", message: message, preferredStyle: .alert)
-                alertController.addAction(UIAlertAction(title: "OK",
-                                                        style: .cancel,
-                                                        handler: nil))
-                alertController.addAction(UIAlertAction(title: "Open Settings",
-                                                        style: .`default`)
-                { _ in
-                    UIApplication.shared.open(URL.init(string: UIApplication.openSettingsURLString)!, options: [:], completionHandler: nil)
-                })
-                
-                self.present(alertController, animated: true)
+                Task { @MainActor in
+                        let message = "To take a 3D scan, go to your privacy settings. Tap Camera and turn on for Capture"
+                        let alertController = UIAlertController(title: "Camera Access", message: message, preferredStyle: .alert)
+                        alertController.addAction(UIAlertAction(title: "OK",
+                                                                style: .cancel,
+                                                                handler: nil))
+                        alertController.addAction(UIAlertAction(title: "Open Settings",
+                                                                style: .`default`)
+                                                  { _ in
+                            UIApplication.shared.open(URL.init(string: UIApplication.openSettingsURLString)!, options: [:], completionHandler: nil)
+                        })
+                        
+                        self.present(alertController, animated: true)
+                    }
             }
         }
     }
