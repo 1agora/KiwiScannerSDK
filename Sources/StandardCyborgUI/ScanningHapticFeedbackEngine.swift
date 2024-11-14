@@ -10,10 +10,12 @@ import Foundation
 import UIKit
 
 /** Manages haptic feedback in response to changes in the scanning state */
+@MainActor
 public class ScanningHapticFeedbackEngine {
     
-    public static let shared = ScanningHapticFeedbackEngine()
+    @MainActor public static let shared = ScanningHapticFeedbackEngine()
     
+    @MainActor
     public init() {
         [
             _hapticImpactMedium,
@@ -22,6 +24,7 @@ public class ScanningHapticFeedbackEngine {
         ].forEach { $0.prepare() }
     }
     
+    @MainActor
     public func countdownCountedDown() {
         _hapticImpactMedium.impactOccurred()
     }
@@ -38,7 +41,7 @@ public class ScanningHapticFeedbackEngine {
         }
     }
     
-    public func scanningCanceled() {
+    @MainActor public func scanningCanceled() {
         _stopScanningTimer()
         
         _hapticNotification.notificationOccurred(UINotificationFeedbackGenerator.FeedbackType.error)
@@ -46,16 +49,19 @@ public class ScanningHapticFeedbackEngine {
     
     // MARK: - Private
     
-    private let _hapticImpactMedium = UIImpactFeedbackGenerator(style: UIImpactFeedbackGenerator.FeedbackStyle.medium)
-    private let _hapticSelection = UISelectionFeedbackGenerator()
-    private let _hapticNotification = UINotificationFeedbackGenerator()
+    @MainActor private let _hapticImpactMedium = UIImpactFeedbackGenerator(style: UIImpactFeedbackGenerator.FeedbackStyle.medium)
+    @MainActor private let _hapticSelection = UISelectionFeedbackGenerator()
+    @MainActor private let _hapticNotification = UINotificationFeedbackGenerator()
     
     private let _scanningTimerInterval = 1.0 / 8.0
     private var _scanningTimer: Timer?
     
     private func _startScanningTimer() {
         _scanningTimer = Timer.scheduledTimer(withTimeInterval: _scanningTimerInterval, repeats: true, block: { [weak self] timer in
-            self?._hapticSelection.selectionChanged()
+            
+            Task { @MainActor in
+                self?._hapticSelection.selectionChanged()
+            }
         })
     }
     

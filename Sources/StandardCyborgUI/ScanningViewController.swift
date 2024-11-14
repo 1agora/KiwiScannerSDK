@@ -21,9 +21,10 @@ import UIKit
     Rendering can be customized by setting the scanningViewRenderer
     to your own object conforming to that protocol.
  */
+@MainActor
 @objc open class ScanningViewController: UIViewController,
-    CameraManagerDelegate,
-    SCReconstructionManagerDelegate
+                                         @preconcurrency CameraManagerDelegate,
+                                         @preconcurrency SCReconstructionManagerDelegate
 {
     
     // MARK: - Public
@@ -442,18 +443,20 @@ import UIKit
             case .configurationFailed:
                 print("Configuration failed for an unknown reason")
             case .notAuthorized:
-                let message = "To take a 3D scan, go to your privacy settings. Tap Camera and turn on for Capture"
-                let alertController = UIAlertController(title: "Camera Access", message: message, preferredStyle: .alert)
-                alertController.addAction(UIAlertAction(title: "OK",
-                                                        style: .cancel,
-                                                        handler: nil))
-                alertController.addAction(UIAlertAction(title: "Open Settings",
-                                                        style: .`default`)
-                { _ in
-                    UIApplication.shared.open(URL.init(string: UIApplication.openSettingsURLString)!, options: [:], completionHandler: nil)
-                })
-                
-                self.present(alertController, animated: true)
+                Task { @MainActor in
+                        let message = "To take a 3D scan, go to your privacy settings. Tap Camera and turn on for Capture"
+                        let alertController = UIAlertController(title: "Camera Access", message: message, preferredStyle: .alert)
+                        alertController.addAction(UIAlertAction(title: "OK",
+                                                                style: .cancel,
+                                                                handler: nil))
+                        alertController.addAction(UIAlertAction(title: "Open Settings",
+                                                                style: .`default`)
+                                                  { _ in
+                            UIApplication.shared.open(URL.init(string: UIApplication.openSettingsURLString)!, options: [:], completionHandler: nil)
+                        })
+                        
+                        self.present(alertController, animated: true)
+                    }
             }
         }
     }

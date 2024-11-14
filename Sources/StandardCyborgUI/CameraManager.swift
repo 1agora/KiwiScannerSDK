@@ -25,7 +25,7 @@ public extension Notification.Name {
     Also requests camera access and manages camera state in response to appplication state
     transitions and interruptions.
  */
-@objc public class CameraManager: NSObject, AVCaptureDataOutputSynchronizerDelegate {
+@objc public class CameraManager: NSObject, AVCaptureDataOutputSynchronizerDelegate, @unchecked Sendable {
     
     @objc public enum SessionSetupResult: Int {
         case success
@@ -94,7 +94,7 @@ public extension Notification.Name {
     /** After having called configureCaptureSession once, call this to start streaming
         color and depth data to the delegate
      */
-    @objc public func startSession(_ completion: ((SessionSetupResult) -> Void)? = nil) {
+    @objc public func startSession(_ completion: (@Sendable (SessionSetupResult) -> Void)? = nil) {
         guard CameraManager.isDepthCameraAvailable else {
             DispatchQueue.main.async {
                 completion?(.configurationFailed)
@@ -130,7 +130,7 @@ public extension Notification.Name {
     }
     
     /** Stops streaming to the delegate */
-    @objc public func stopSession( _ completion: (() -> Void)? = nil) {
+    @objc public func stopSession( _ completion: (@Sendable () -> Void)? = nil) {
         _dataOutputQueue.async {
             self._dataOutputQueue_renderingEnabled = false
         }
