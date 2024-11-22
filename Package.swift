@@ -19,7 +19,6 @@ let package = Package(
             name: "KiwiScannerSDK",
             dependencies: ["StandardCyborgFusion", "StandardCyborgUI"]
         ),
-        
         .target(
             name: "StandardCyborgUIObjC",
             path: "Sources/StandardCyborgUIObjC",

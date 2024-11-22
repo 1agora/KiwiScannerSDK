@@ -16,6 +16,8 @@ import UIKit
     @objc private var landmarks: Set<SCLandmark3D>?
     @objc private var coloringStrategy: SCMeshColoringStrategy = .vertex
     
+    @objc public var meshingParameters : SCMeshingParameters?
+    
     /** A snapshot of the scene as-rendered, which becomes available
         as soon as the view controller's view appears. If meshing is enabled this
         property will be updated once the mesh has rendered.
@@ -111,10 +113,16 @@ import UIKit
         button.layer.cornerRadius = 10
         return button
     }()
+    
+    public func finish() -> SCScene {
+        return self.scScene
+    }
         
     /** Appears while a mesh is being processed. Owners may mutate this to customize its appearance */
     @objc public let meshingProgressView: UIProgressView = {
         let progressView = UIProgressView()
+        progressView.trackTintColor = UIColor.gray
+        progressView.progressTintColor = UIColor.orange
         progressView.progress = 0
         return progressView
     }()
@@ -133,8 +141,8 @@ import UIKit
 
         view.backgroundColor = UIColor.white
         view.addSubview(sceneView)
-        view.addSubview(leftButton)
-        view.addSubview(rightButton)
+//        view.addSubview(leftButton)
+//        view.addSubview(rightButton)
         view.addSubview(meshingProgressView)
     }
     
@@ -231,7 +239,8 @@ import UIKit
         meshingProgressView.isHidden = false
         meshingProgressView.setProgress(0, animated: false)
         
-        _meshingHelper = SCMeshingHelper(pointCloud: pointCloud, meshTexturing: meshTexturing)
+        _meshingHelper = SCMeshingHelper(pointCloud: pointCloud, meshTexturing: meshTexturing, meshingParameters: meshingParameters)
+        
         _meshingHelper?.processMesh(coloringStrategy: coloringStrategy) { meshingStatus in
             DispatchQueue.main.async {
                 switch meshingStatus {

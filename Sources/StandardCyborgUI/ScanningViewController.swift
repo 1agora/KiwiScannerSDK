@@ -5,6 +5,8 @@ import UIKit
 @objc public protocol ScanningViewControllerDelegate: AnyObject {
     func scanningViewControllerDidCancel(_ controller: ScanningViewController)
     @objc optional func scanningViewController(_ controller: ScanningViewController, didScan pointCloud: SCPointCloud)
+    @objc optional func scanningViewController(_ controller: ScanningViewController, didProcessFrame: SCReconstructionManagerStatistics)
+    
 }
 
 /**
@@ -279,6 +281,7 @@ import UIKit
                                   viewMatrix: _latestViewMatrix,
                                   into: _metalLayer)
         
+        
         if isScanning {
             _reconstructionManager.accumulate(depthBuffer: depthBuffer,
                                               colorBuffer: colorBuffer,
@@ -306,6 +309,10 @@ import UIKit
                                                                projectionMatrix: metadata.projectionMatrix)
             }
             _assimilatedFrameIndex += 1
+                
+            DispatchQueue.global(qos: .utility).async {
+                self.delegate?.scanningViewController?(self, didProcessFrame: statistics)
+            }
             
         case .failed:
             let assimilatedTooFewFrames = statistics.succeededCount < _failedScanShowPreviewMinFrameCount
